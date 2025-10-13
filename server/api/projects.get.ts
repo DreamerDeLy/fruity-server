@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import flp from "flp";
+import { parseFlpMetadata } from "../lib/fast-flp-parser";
 
 const PROJECTS_DIR = process.env.PROJECTS_DIR || "C:\\Users\\dream\\Documents\\Image-Line\\FL Studio\\Projects";
 
@@ -16,19 +16,6 @@ function getDateFromPrefix(name: string): Date | null {
 		return new Date(`${fullYear}-${month}-${day}`);
 	}
 	return null;
-}
-
-async function parseFlpFile(filePath: string): Promise<{ bpm: number | null; title: string | null; version: string | null }> {
-    return new Promise((resolve, reject) => {
-        flp.parseFile(filePath, (err: any, projectInfo: any) => {
-            if (err) reject(err);
-            resolve({
-                bpm: projectInfo?.tempo || null,
-                title: projectInfo?.projectTitle || null,
-                version: projectInfo?.versionString || null,
-            });
-        });
-    });
 }
 
 export default defineEventHandler(async () => {
@@ -50,7 +37,7 @@ export default defineEventHandler(async () => {
 				const fullPath = path.join(dirPath, f);
 				const stats = await fs.stat(fullPath);
 
-				const parsedData = await parseFlpFile(fullPath);
+				const parsedData = await parseFlpMetadata(fullPath);
 
 				return { 
 					name: f, 
