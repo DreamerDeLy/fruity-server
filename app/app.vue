@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col max-h-screen overflow-hidden">
+	<div class="flex flex-col h-screen overflow-hidden">
 		<div class="bg-gray-900 border-b border-gray-700 p-4 flex justify-between items-center">
 			<div class="flex items-center gap-1">
 				<img src="~/assets/FruityServer Logo 1.svg" alt="logo" class="invert w-12 h-12 mb-1">
