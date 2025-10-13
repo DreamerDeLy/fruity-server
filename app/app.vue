@@ -7,13 +7,21 @@
 
 		<div class="grow flex flex-row overflow-hidden">
 			<div class="max-w-lg flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
-				<div v-for="p in projects" :key="p.name" class="bg-gray-800 p-4 rounded-lg">
+				<div 
+					v-for="p in projects" 
+					:key="p.name" 
+					class="bg-gray-800 p-4 rounded-lg data-current:bg-gray-700"
+					:data-current="p.name == currentProject ? true : null"
+				>
 					<div class="flex justify-between items-center mb-2">
 						<div>
 							<h3 class="font-semibold">{{ p.name }}</h3>
 							<small class="text-gray-400">{{ p.mp3s.length }} mp3</small>
 						</div>
-						<button class="bg-purple-600 px-3 py-1 rounded" @click="play(p.last?.url, p.name, p.last?.name)" v-if="p.last">
+						<button 
+							class="bg-purple-600 w-8 h-8 rounded-full" 
+							@click="play(p.last?.url, p.name, p.last?.name)" v-if="p.last"
+						>
 							<font-awesome :icon="faPlay" />
 						</button>
 					</div>
@@ -21,7 +29,10 @@
 					<ul>
 						<li v-for="m in p.mp3s" :key="m.name" class="flex justify-between">
 							<span>{{ m.name }}</span>
-							<button @click="play(m.url, p.name, m.name)">
+							<button 
+								class="w-8 h-8 rounded-full" 
+								@click="play(m.url, p.name, m.name)"
+							>
 								<font-awesome :icon="faPlay" />
 							</button>
 						</li>
@@ -30,7 +41,7 @@
 			</div>
 			<div class="p-6">
 				<!-- Placeholder for future content -->
-				<h1>Song Name</h1>
+				<h1>{{ currentProject ?? "Song name" }}</h1>
 				<p>Artist</p>
 				<p>Year</p>
 				<p>Genre</p>

@@ -227,7 +227,7 @@ async function loadWaveformForUrl(url: string) {
 
   pendingWaveformUrl = url;
   currentWaveform = null;
-  setWaveformState('loading', 'Завантаження хвилі…');
+  setWaveformState('loading', 'Loading waveform…');
   ensureWaveCanvas();
 
   try {
@@ -243,7 +243,7 @@ async function loadWaveformForUrl(url: string) {
   } catch (err) {
     if (pendingWaveformUrl === url) {
       console.error('Waveform render error', err);
-      setWaveformState('error', 'Хвилю не зчитано');
+      setWaveformState('error', 'Waveform error');
       pendingWaveformUrl = null;
     }
   }

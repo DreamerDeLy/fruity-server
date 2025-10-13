@@ -1,9 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
 @import "tailwindcss";
 
-
-@layer theme, base, components, utilities;
-
 @layer base {
 	:root {
 		color-scheme: dark;
@@ -27,5 +24,15 @@
 
 	h2 {
 		@apply font-display text-2xl font-semibold;
+	}
+
+	button {
+		@apply font-semibold text-sm 
+			flex items-center justify-center
+			rounded 
+			px-3 py-1
+			cursor-pointer
+			hover:bg-white/10 
+			transition;
 	}
 }
