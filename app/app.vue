@@ -97,6 +97,12 @@ const isPlaying = ref(false);
 onMounted(async () => {
 	const res = await $fetch("/api/projects");
 	projects.value = res;
+
+	projects.value.sort((a, b) => {
+		const dateA = a.date_prefix ? new Date(a.date_prefix) : new Date(0);
+		const dateB = b.date_prefix ? new Date(b.date_prefix) : new Date(0);
+		return dateB.getTime() - dateA.getTime();
+	});
 });
 
 async function play(url, project, trackName = "") {
