@@ -18,9 +18,17 @@
 		</div>
 
 		<div class="grow flex flex-row overflow-hidden">
-			<div class="max-w-[520px] flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
+			<div class="w-[50%] max-w-[520px] flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
+				<div class="mb-2">
+					<input 
+						class="rounded bg-gray-800 w-full py-1 px-2" 
+						type="text" 
+						placeholder="Search..."
+						v-model="searchText"
+					>
+				</div>
 				<ProjectPanel 
-					v-for="p in projects" 
+					v-for="p in filteredProjects" 
 					:key="p.name" 
 					:data-current="p.name == currentProjectName ? true : null"
 					:project="p"
@@ -90,6 +98,16 @@ const currentProjectName = ref("");
 const currentTrack = ref("");
 const player = ref(null);
 const isPlaying = ref(false);
+
+const searchText = ref("");
+const filteredProjects = computed(() => {
+	if (!searchText.value) return projects.value;
+	return projects.value.filter(p => 
+		p.name.toLowerCase().includes(searchText.value.toLowerCase()) ||
+		(p.flps[0]?.artist && p.flps[0].artist.toLowerCase().includes(searchText.value.toLowerCase())) ||
+		p.mp3s.some(m => m.name.toLowerCase().includes(searchText.value.toLowerCase()))
+	);
+});
 
 onMounted(async () => {
 	const res = await $fetch("/api/projects");
