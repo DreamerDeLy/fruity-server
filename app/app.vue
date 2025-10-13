@@ -6,57 +6,14 @@
 		</div>
 
 		<div class="grow flex flex-row overflow-hidden">
-			<div class="max-w-lg flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
-				<div 
+			<div class="max-w-[520px] flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
+				<ProjectPanel 
 					v-for="p in projects" 
 					:key="p.name" 
-					class="bg-gray-800 p-4 rounded-lg data-current:bg-gray-700"
 					:data-current="p.name == currentProjectName ? true : null"
-				>
-					<div class="flex justify-between items-center mb-4">
-						<div>
-							<h3 class="font-semibold mb-2">{{ p.name }}</h3>
-
-							<div class="flex gap-1.5">
-								<div 
-									class="border border-sky-700 bg-sky-900 rounded px-1 py-0.5 text-sm"
-								>
-									{{ p.mp3s.length }} mp3
-								</div>
-								<div 
-									v-if="p.flps[0].bpm" 
-									class="border border-emerald-700 bg-emerald-900 rounded px-1 py-0.5 text-sm"
-								>
-									{{ p.flps[0].bpm + " bpm" }}
-								</div>
-								<div 
-									v-if="p.flps[0].version" 
-									class="border border-yellow-700 bg-yellow-900 rounded px-1 py-0.5 text-sm"
-								>
-									{{ "v" + p.flps[0].version }}
-								</div>
-							</div>
-						</div>
-						<button 
-							class="bg-purple-600 w-8 h-8 rounded-full" 
-							@click="play(p.last?.url, p.name, p.last?.name)" v-if="p.last"
-						>
-							<font-awesome :icon="faPlay" />
-						</button>
-					</div>
-
-					<ul>
-						<li v-for="m in p.mp3s" :key="m.name" class="flex justify-between">
-							<span>{{ m.name }}</span>
-							<button 
-								class="w-8 h-8 rounded-full" 
-								@click="play(m.url, p.name, m.name)"
-							>
-								<font-awesome :icon="faPlay" />
-							</button>
-						</li>
-					</ul>
-				</div>
+					:project="p"
+					@play="play"
+				/>
 			</div>
 			<div class="p-6">
 				<!-- Placeholder for future content -->
@@ -112,6 +69,7 @@
 <script setup>
 import { faPause, faPlay, faStop } from '@fortawesome/free-solid-svg-icons'
 import WaveformPlayer from './components/WaveformPlayer.vue'
+import ProjectPanel from './components/ProjectPanel.vue';
 
 const projects = ref([]);
 const currentUrl = ref("");
