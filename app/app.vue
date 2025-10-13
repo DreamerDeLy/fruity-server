@@ -1,9 +1,12 @@
 <template>
 	<div class="flex flex-col max-h-screen overflow-hidden">
 		<div class="bg-gray-900 border-b border-gray-700 p-4 flex justify-between items-center">
-			<div>
-				<h2 class="text-2xl font-bold mb-0">FruityServer</h2>
-				<small>All your shit in one place</small>
+			<div class="flex items-center gap-1">
+				<img src="~/assets/FruityServer Logo 1.svg" alt="logo" class="invert w-12 h-12 mb-1">
+				<div>
+					<h2 class="text-2xl font-bold mb-0">FruityServer</h2>
+					<small>All your shit in one place</small>
+				</div>
 			</div>
 			<div class="flex gap-4 [&>div]:p-1 [&>div]:text-center [&>div>div]:font-bold">
 				<div>
@@ -37,7 +40,7 @@
 			</div>
 			<div class="p-6">
 				<!-- Placeholder for future content -->
-				<h1>{{ currentProjectName ?? "Song name" }}</h1>
+				<h1>{{ currentProjectName == null || currentProjectName.length < 1 ? "Song name" : currentProjectName }}</h1>
 				<p>Artist: {{ currentProject?.flps[0]?.artist ?? "-" }}</p>
 				<p>
 					Dates: 
@@ -51,38 +54,40 @@
 			</div>
 		</div>
 
-		<footer v-if="currentUrl"
-			class="bg-gray-900 border-t border-gray-700 flex flex-wrap items-center gap-4 p-3"
-		>
-
-			<div class="flex gap-2">
-				<button
-					class="bg-purple-600 hover:bg-purple-500 transition-colors rounded-full p-3 text-white w-12 h-12 flex items-center justify-center"
-					@click="togglePlay"
-				>
-					<font-awesome :icon="isPlaying ? faPause : faPlay" />
-				</button>
-				<button
-					class="bg-gray-800 hover:bg-gray-700 transition-colors rounded-full p-3 text-white w-12 h-12 flex items-center justify-center"
-					@click="stopPlayback"
-				>
-					<font-awesome :icon="faStop" />
-				</button>
-			</div>
-			<WaveformPlayer
-				ref="player"
-				class="flex-1 min-w-[260px]"
-				:src="currentUrl"
-				:title="currentTrack"
-				:subtitle="currentProjectName"
-				autoplay
-				@play="isPlaying = true"
-				@pause="isPlaying = false"
-				@ended="isPlaying = false"
-			/>
-
-			
-		</footer>
+		<Transition name="slide-up">
+			<footer v-if="currentUrl"
+				class="bg-gray-900 border-t border-gray-700 flex flex-wrap items-center gap-4 p-3"
+			>
+	
+				<div class="flex gap-2">
+					<button
+						class="bg-purple-600 hover:bg-purple-500 transition-colors rounded-full p-3 text-white w-12 h-12 flex items-center justify-center"
+						@click="togglePlay"
+					>
+						<font-awesome :icon="isPlaying ? faPause : faPlay" />
+					</button>
+					<button
+						class="bg-gray-800 hover:bg-gray-700 transition-colors rounded-full p-3 text-white w-12 h-12 flex items-center justify-center"
+						@click="stopPlayback"
+					>
+						<font-awesome :icon="faStop" />
+					</button>
+				</div>
+				<WaveformPlayer
+					ref="player"
+					class="flex-1 min-w-[260px]"
+					:src="currentUrl"
+					:title="currentTrack"
+					:subtitle="currentProjectName"
+					autoplay
+					@play="isPlaying = true"
+					@pause="isPlaying = false"
+					@ended="isPlaying = false"
+				/>
+	
+				
+			</footer>
+		</Transition>
 	</div>
 </template>
 
@@ -162,4 +167,17 @@ function deriveTrackName(url = "") {
 }
 </script>
 
-<style></style>
+<style scoped>
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-up-enter-from {
+  transform: translateY(100%);
+}
+
+.slide-up-leave-to {
+  transform: translateY(100%);
+}
+</style>
