@@ -1,8 +1,20 @@
 <template>
 	<div class="flex flex-col max-h-screen overflow-hidden">
-		<div class="bg-gray-900 border-b border-gray-700 p-4">
-			<h2 class="text-2xl font-bold mb-0">FruityServer</h2>
-			<small>All your shit in one place</small>
+		<div class="bg-gray-900 border-b border-gray-700 p-4 flex justify-between items-center">
+			<div>
+				<h2 class="text-2xl font-bold mb-0">FruityServer</h2>
+				<small>All your shit in one place</small>
+			</div>
+			<div class="flex gap-4 [&>div]:p-1 [&>div]:text-center [&>div>div]:font-bold">
+				<div>
+					<div>{{ projects.length }}</div>
+					<small>Projects</small>
+				</div>
+				<div>
+					<div>{{ projects.filter(p => p.mp3s.length > 0).length }}</div>
+					<small>With MP3s</small>
+				</div>
+			</div>
 		</div>
 
 		<div class="grow flex flex-row overflow-hidden">
