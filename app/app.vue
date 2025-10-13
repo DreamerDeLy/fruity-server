@@ -11,12 +11,31 @@
 					v-for="p in projects" 
 					:key="p.name" 
 					class="bg-gray-800 p-4 rounded-lg data-current:bg-gray-700"
-					:data-current="p.name == currentProject ? true : null"
+					:data-current="p.name == currentProjectName ? true : null"
 				>
-					<div class="flex justify-between items-center mb-2">
+					<div class="flex justify-between items-center mb-4">
 						<div>
-							<h3 class="font-semibold">{{ p.name }}</h3>
-							<small class="text-gray-400">{{ p.mp3s.length }} mp3</small>
+							<h3 class="font-semibold mb-2">{{ p.name }}</h3>
+
+							<div class="flex gap-1.5">
+								<div 
+									class="border border-sky-700 bg-sky-900 rounded px-1 py-0.5 text-sm"
+								>
+									{{ p.mp3s.length }} mp3
+								</div>
+								<div 
+									v-if="p.flps[0].bpm" 
+									class="border border-emerald-700 bg-emerald-900 rounded px-1 py-0.5 text-sm"
+								>
+									{{ p.flps[0].bpm + " bpm" }}
+								</div>
+								<div 
+									v-if="p.flps[0].version" 
+									class="border border-yellow-700 bg-yellow-900 rounded px-1 py-0.5 text-sm"
+								>
+									{{ "v" + p.flps[0].version }}
+								</div>
+							</div>
 						</div>
 						<button 
 							class="bg-purple-600 w-8 h-8 rounded-full" 
@@ -41,10 +60,17 @@
 			</div>
 			<div class="p-6">
 				<!-- Placeholder for future content -->
-				<h1>{{ currentProject ?? "Song name" }}</h1>
-				<p>Artist</p>
-				<p>Year</p>
-				<p>Genre</p>
+				<h1>{{ currentProjectName ?? "Song name" }}</h1>
+				<p>Artist: {{ currentProject?.flps[0]?.artist ?? "-" }}</p>
+				<p>
+					Dates: 
+					<span v-if="currentProject?.flps?.length > 1">
+						{{ currentProject.flps[0].ctime.substring(0, 10) }} - {{ currentProject.flps[currentProject.flps.length - 1].ctime.substring(0, 10) }}
+					</span>
+					<span v-else>
+						{{ currentProject?.flps?.[0]?.ctime?.substring(0, 10) ?? "-" }}
+					</span>
+				</p>
 			</div>
 		</div>
 
@@ -71,7 +97,7 @@
 				class="flex-1 min-w-[260px]"
 				:src="currentUrl"
 				:title="currentTrack"
-				:subtitle="currentProject"
+				:subtitle="currentProjectName"
 				autoplay
 				@play="isPlaying = true"
 				@pause="isPlaying = false"
@@ -89,7 +115,8 @@ import WaveformPlayer from './components/WaveformPlayer.vue'
 
 const projects = ref([]);
 const currentUrl = ref("");
-const currentProject = ref("");
+const currentProject = ref(null);
+const currentProjectName = ref("");
 const currentTrack = ref("");
 const player = ref(null);
 const isPlaying = ref(false);
@@ -109,8 +136,10 @@ async function play(url, project, trackName = "") {
 	if (!url) return;
 	const assignSource = () => {
 		currentUrl.value = url;
-		currentProject.value = project;
+		currentProjectName.value = project;
 		currentTrack.value = trackName || deriveTrackName(url);
+
+		currentProject.value = projects.value.find(p => p.name === project) || null;
 	};
 
 	if (currentUrl.value === url) {
@@ -131,7 +160,7 @@ function togglePlay() {
 function stopPlayback() {
 	player.value?.stop();
 	currentUrl.value = "";
-	currentProject.value = "";
+	currentProjectName.value = "";
 	currentTrack.value = "";
 	isPlaying.value = false;
 }

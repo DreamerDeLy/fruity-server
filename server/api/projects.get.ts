@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import flp from "flp";
 
 const PROJECTS_DIR = process.env.PROJECTS_DIR || "C:\\Users\\dream\\Documents\\Image-Line\\FL Studio\\Projects";
 
@@ -15,6 +16,19 @@ function getDateFromPrefix(name: string): Date | null {
 		return new Date(`${fullYear}-${month}-${day}`);
 	}
 	return null;
+}
+
+async function parseFlpFile(filePath: string): Promise<{ bpm: number | null; title: string | null; version: string | null }> {
+    return new Promise((resolve, reject) => {
+        flp.parseFile(filePath, (err: any, projectInfo: any) => {
+            if (err) reject(err);
+            resolve({
+                bpm: projectInfo?.tempo || null,
+                title: projectInfo?.projectTitle || null,
+                version: projectInfo?.versionString || null,
+            });
+        });
+    });
 }
 
 export default defineEventHandler(async () => {
@@ -33,8 +47,18 @@ export default defineEventHandler(async () => {
 		const flps = files
 			.filter(isFlp)
 			.map(async f => {
-				const stats = await fs.stat(path.join(dirPath, f));
-				return { name: f, mtime: stats.mtime, ctime: stats.ctime };
+				const fullPath = path.join(dirPath, f);
+				const stats = await fs.stat(fullPath);
+
+				const parsedData = await parseFlpFile(fullPath);
+
+				return { 
+					name: f, 
+					mtime: stats.mtime, 
+					ctime: stats.ctime,
+					...parsedData,
+					normalized: normalizeBase(f),
+				};
 			});
 
 		const mp3s = files
@@ -47,6 +71,7 @@ export default defineEventHandler(async () => {
 		projects.push({ 
 			name: e.name, 
 			mp3s, 
+			flps: await Promise.all(flps),
 			last: mp3s[mp3s.length - 1],
 			date_prefix: dateFromPrefix,
 		});
