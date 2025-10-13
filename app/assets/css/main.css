@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+@import "tailwindcss";
+
+
+@layer theme, base, components, utilities;
+
+@layer base {
+	:root {
+		color-scheme: dark;
+	}
+
+	html, body {
+		@apply bg-gray-900 text-white;
+	}
+}
+
+@theme {
+	--font-display: "Oswald", "sans-serif";
+}
+
+@layer components {
+	/* Custom components can be added here */
+
+	h1 {
+		@apply font-display text-4xl font-extrabold mb-4;
+	}
+
+	h2 {
+		@apply font-display text-2xl font-semibold;
+	}
+}
