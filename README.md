@@ -93,7 +93,9 @@ yarn preview
 bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+### Setting the Projects Directory
+
+By default, Fruity Server scans the `./projects` directory for FL Studio projects. You can change this by setting the `PROJECTS_DIR` environment variable to your desired path.
 
 ## License
 
