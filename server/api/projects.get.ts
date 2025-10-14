@@ -51,17 +51,27 @@ export default defineEventHandler(async () => {
 
 		const mp3s = files
 			.filter(isMp3)
-			.map(f => ({ 
-				name: f, 
-				url: `/api/media/${encodeURIComponent(dirRelativePath)}/${encodeURIComponent(f)}` 
-			}));
+			.map(async f => {
+				const fullPath = path.join(dirPath, f);
+				const stats = await fs.stat(fullPath);
+
+				return { 
+					name: f, 
+					url: `/api/media/${encodeURIComponent(dirRelativePath)}/${encodeURIComponent(f)}`,
+					mtime: stats.mtime, 
+					ctime: stats.ctime,
+				}
+			});
+
+		const awaitedMp3s = await Promise.all(mp3s);
+		const awaitedFlps = await Promise.all(flps);
 
 		projects.push({ 
 			name: e.name, 
 			parentPath: e.parentPath,
-			mp3s, 
-			flps: await Promise.all(flps),
-			last: mp3s[mp3s.length - 1],
+			mp3s: awaitedMp3s,
+			flps: awaitedFlps,
+			last: awaitedMp3s[awaitedMp3s.length - 1],
 			date_prefix: dateFromPrefix,
 		});
 	}

@@ -41,7 +41,17 @@
 				:key="m.name" 
 				class="flex justify-between"
 			>
-				<span class="font-mono text-sm">{{ m.name }}</span>
+				<span class="text-sm">
+					<span class="font-mono">
+						{{ m.name }}
+					</span>
+					<span class="text-gray-500">
+						&nbsp;•&nbsp;
+					</span>
+					<span class="text-gray-500">
+						{{ (new Date(m.ctime)).toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" }) }}
+					</span>
+				</span>
 				<button 
 					class="w-8 h-8 rounded-full play-button" 
 					@click="emit('play', m.url, project.name, m.name)"

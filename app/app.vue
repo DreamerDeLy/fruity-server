@@ -21,7 +21,7 @@
 		</div>
 
 		<div class="grow flex flex-row overflow-hidden">
-			<div class="w-[50%] max-w-[520px] flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
+			<div class="w-[50%] max-w-[540px] flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
 				<div class="mb-2">
 					<input 
 						class="rounded bg-gray-800 w-full py-1 px-2" 
@@ -39,18 +39,32 @@
 				/>
 			</div>
 			<div class="p-6">
-				<!-- Placeholder for future content -->
-				<h1>{{ currentProjectName == null || currentProjectName.length < 1 ? "Song name" : currentProjectName }}</h1>
-				<p>Artist: {{ currentProject?.flps[0]?.artist ?? "-" }}</p>
-				<p>
-					Dates: 
-					<span v-if="currentProject?.flps?.length > 1">
-						{{ currentProject.flps[0].ctime.substring(0, 10) }} - {{ currentProject.flps[currentProject.flps.length - 1].ctime.substring(0, 10) }}
-					</span>
-					<span v-else>
-						{{ currentProject?.flps?.[0]?.ctime?.substring(0, 10) ?? "-" }}
-					</span>
-				</p>
+				<div class="flex gap-5">
+					<div class="w-48 aspect-square rounded-lg overflow-hidden bg-gray-800 flex items-center justify-center">
+						<img
+							v-if="false" 
+							src="" 
+							alt="cover" 
+							class="w-full h-full object-cover"
+						>
+						<div>
+							<font-awesome :icon="faMusic" class="text-3xl text-gray-500" />
+						</div>
+					</div>
+					<div>
+						<h1>{{ currentProjectName == null || currentProjectName.length < 1 ? "Song name" : currentProjectName }}</h1>
+						<p>Artist: {{ currentProject?.flps[0]?.artist ?? "-" }}</p>
+						<p>
+							Dates: 
+							<span v-if="currentProject?.flps?.length > 1">
+								{{ currentProject.flps[0].ctime.substring(0, 10) }} - {{ currentProject.flps[currentProject.flps.length - 1].ctime.substring(0, 10) }}
+							</span>
+							<span v-else>
+								{{ currentProject?.flps?.[0]?.ctime?.substring(0, 10) ?? "-" }}
+							</span>
+						</p>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -92,7 +106,7 @@
 </template>
 
 <script setup>
-import { faPause, faPlay, faStop } from '@fortawesome/free-solid-svg-icons'
+import { faPause, faPlay, faStop, faMusic } from '@fortawesome/free-solid-svg-icons'
 import WaveformPlayer from './components/WaveformPlayer.vue'
 import ProjectPanel from './components/ProjectPanel.vue';
 
@@ -138,6 +152,8 @@ onMounted(async () => {
 });
 
 async function play(url, project, trackName = "") {
+	console.log("Play", { url, project, trackName });
+
 	if (!url) return;
 	const assignSource = () => {
 		currentUrl.value = url;
