@@ -7,12 +7,14 @@
 	}
 
 	html, body {
-		@apply bg-gray-900 text-white;
+		@apply bg-gray-900 text-white font-main;
 	}
 }
 
 @theme {
+	--font-main: "Helvetica", "Arial", "sans-serif";
 	--font-display: "Oswald", "sans-serif";
+	--font-mono: "SFMono-Regular", "Consolas", "Courier New", "monospace";
 }
 
 @layer components {
@@ -34,5 +36,9 @@
 			cursor-pointer
 			hover:bg-white/10 
 			transition;
+	}
+
+	.play-button {
+		@apply scale-100 hover:scale-110 ease-in;
 	}
 }

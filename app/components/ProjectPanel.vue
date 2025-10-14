@@ -4,7 +4,7 @@
 	>
 		<div class="flex justify-between items-center mb-4">
 			<div>
-				<h3 class="font-semibold mb-2">{{ project.name }}</h3>
+				<h3 class="font-bold mb-2 text-lg">{{ project.name }}</h3>
 
 				<div class="flex gap-1.5">
 					<div 
@@ -27,7 +27,7 @@
 				</div>
 			</div>
 			<button 
-				class="bg-purple-600 w-8 h-8 rounded-full" 
+				class="bg-purple-600 w-8 h-8 rounded-full play-button" 
 				@click="emit('play', project.last?.url, project.name, project.last?.name)"
 				v-if="project.last"
 			>
@@ -41,9 +41,9 @@
 				:key="m.name" 
 				class="flex justify-between"
 			>
-				<span>{{ m.name }}</span>
+				<span class="font-mono text-sm">{{ m.name }}</span>
 				<button 
-					class="w-8 h-8 rounded-full" 
+					class="w-8 h-8 rounded-full play-button" 
 					@click="emit('play', m.url, project.name, m.name)"
 				>
 					<font-awesome :icon="faPlay" />
