@@ -106,7 +106,19 @@ const isPlaying = ref(false);
 
 const searchText = ref("");
 const filteredProjects = computed(() => {
-	if (!searchText.value) return projects.value;
+	const text = searchText.value.trim();
+	
+	if (!text) return projects.value;
+
+
+	if (text.startsWith("folder:")) {
+		const folderToSearch = text.slice(7).trim().toLowerCase();
+		return projects.value.filter(p => {
+			const parentFolder = p.parentPath.toLowerCase().split("\\").at(-1) || "";
+			return parentFolder.includes(folderToSearch);
+		});
+	}
+
 	return projects.value.filter(p => 
 		p.name.toLowerCase().includes(searchText.value.toLowerCase()) ||
 		(p.flps[0]?.artist && p.flps[0].artist.toLowerCase().includes(searchText.value.toLowerCase())) ||
