@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { parseFlpMetadata } from "../lib/fast-flp-parser";
+import { findFirstCoverRelative } from "../lib/covers";
 
 const FOLDERS_CONFIG = path.join(process.cwd(), "config", "folders.json");
 
@@ -34,14 +35,12 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 404, statusMessage: "Folder not found" });
 	}
 
-	const PROJECTS_DIR = folder.path;
-
-	const entries = await fs.readdir(PROJECTS_DIR, { withFileTypes: true, recursive: true });
+	const entries = await fs.readdir(folder.path, { withFileTypes: true, recursive: true });
 	const projects: any[] = [];
 
 	for (const e of entries.filter(e => e.isDirectory())) {
 		const dirPath = path.join(e.parentPath, e.name);
-		const dirRelativePath = path.relative(PROJECTS_DIR, dirPath);
+		const dirRelativePath = path.relative(folder.path, dirPath);
 		const files = await fs.readdir(dirPath);
 
 		const dateFromPrefix = getDateFromPrefix(e.name);
@@ -83,6 +82,14 @@ export default defineEventHandler(async (event) => {
 		const awaitedMp3s = await Promise.all(mp3s);
 		const awaitedFlps = await Promise.all(flps);
 
+		const projectRelative = path.relative(folder.path, dirPath).split(/[\\/]/).filter(Boolean);
+        const coverRelative = await findFirstCoverRelative(dirPath, 2);
+        const cover = coverRelative
+            ? `/api/media/${[folderName, ...projectRelative, ...coverRelative.split(/[\\/]/)]
+                    .map((segment) => encodeURIComponent(segment))
+                    .join("/")}`
+            : null;
+
 		projects.push({ 
 			name: e.name, 
 			parentPath: e.parentPath,
@@ -90,6 +97,7 @@ export default defineEventHandler(async (event) => {
 			flps: awaitedFlps,
 			last: awaitedMp3s[awaitedMp3s.length - 1],
 			date_prefix: dateFromPrefix,
+			cover
 		});
 	}
 
