@@ -57,7 +57,7 @@
 				<AddFolderModal v-model="showAddFolder" @add-folder="addFolder"/>
 			</div>
 
-			<div class="flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
+			<div class="flex flex-col gap-2 overflow-y-auto overflow-x-hidden border-gray-700 border-r p-4">
 				<h3 class="text-lg font-bold mb-2">
 					Projects
 				</h3>
@@ -72,7 +72,7 @@
 				</div>
 
 				<div
-					class="flex flex-col gap-2 relative"
+					class="flex flex-col gap-2 relative w-full"
 				>
 					<div 
 						v-if="projectsLoading" 

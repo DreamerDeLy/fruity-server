@@ -4,6 +4,7 @@
 			bg-gray-800 
 			hover:bg-gray-700
 			data-selected:bg-gray-700 
+			border border-gray-800
 			rounded-lg 
 			flex items-center justify-between 
 			cursor-pointer 
