@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { parseFlpMetadata } from "../lib/fast-flp-parser";
 
-const PROJECTS_DIR = process.env.PROJECTS_DIR || "C:\\Users\\dream\\Documents\\Image-Line\\FL Studio\\Projects";
+const FOLDERS_CONFIG = path.join(process.cwd(), "config", "folders.json");
 
 const isMp3 = (f: string) => f.toLowerCase().endsWith(".mp3");
 const isFlp = (f: string) => f.toLowerCase().endsWith(".flp");
@@ -18,7 +18,24 @@ function getDateFromPrefix(name: string): Date | null {
 	return null;
 }
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+	const query = getQuery(event);
+	const folderName = query.folder as string;
+
+	if (!folderName) {
+		throw createError({ statusCode: 400, statusMessage: "Folder parameter is required" });
+	}
+
+	const foldersData = await fs.readFile(FOLDERS_CONFIG, "utf-8");
+	const folders = JSON.parse(foldersData);
+	const folder = folders.find((f: any) => f.name === folderName);
+
+	if (!folder) {
+		throw createError({ statusCode: 404, statusMessage: "Folder not found" });
+	}
+
+	const PROJECTS_DIR = folder.path;
+
 	const entries = await fs.readdir(PROJECTS_DIR, { withFileTypes: true, recursive: true });
 	const projects: any[] = [];
 
@@ -57,7 +74,7 @@ export default defineEventHandler(async () => {
 
 				return { 
 					name: f, 
-					url: `/api/media/${encodeURIComponent(dirRelativePath)}/${encodeURIComponent(f)}`,
+					url: `/api/media/${encodeURIComponent(folder.name)}/${encodeURIComponent(dirRelativePath)}/${encodeURIComponent(f)}`,
 					mtime: stats.mtime, 
 					ctime: stats.ctime,
 				}
