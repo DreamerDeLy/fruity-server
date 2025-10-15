@@ -21,7 +21,18 @@ With Fruity Server, all your demos live in one place, ready to explore. Just cli
 </p>
 
 <br>
-<br>
+
+## Features
+
+- Player with waveform visualization and draggable playhead for scrubbing and seeking.
+- Directory scanner that reads multiple project folders (user-addable) instead of a single default.
+- Serve media files per-folder (media URLs include folder name) with streaming/range support.
+- Read file metadata such as creation/modification time and file size.
+- Extract FL Studio `.flp` metadata where possible (BPM, FL Studio version, artist/author).
+- Simple search with filters (by folder, name).
+- UI for adding/removing/configuring project directories; settings persisted in a simple JSON config (no database).
+- Endpoint to list available folders and to list projects within a selected folder.
+- Secure path resolution and validation to prevent directory traversal and serve only configured folders.
 
 ## Setup
 
