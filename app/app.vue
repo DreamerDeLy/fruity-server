@@ -68,9 +68,12 @@
 						class="flex gap-1"
 						@click="showAddFolder = true"
 					>
-						Add folder<LucidePlus :size="16" />
+						Add folder
+						<LucidePlus :size="16" />
 					</button>
 				</div>
+
+				<AddFolderModal v-model="showAddFolder" @add-folder="addFolder"/>
 			</div>
 
 			<div class="flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
@@ -166,52 +169,9 @@
 					@pause="isPlaying = false"
 					@ended="isPlaying = false"
 				/>
-	
-				
 			</footer>
 		</Transition>
 	</div>
-
-	<!-- Add Folder Modal -->
-	<Transition name="fade">
-		<div v-if="showAddFolder" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-			<div class="bg-gray-800 rounded-lg p-6 w-96">
-				<h3 class="text-lg font-bold mb-4">Add New Folder</h3>
-				<div class="mb-4">
-					<label class="block text-sm font-medium mb-2">Folder Name</label>
-					<input 
-						v-model="newFolderName"
-						class="w-full bg-gray-700 rounded px-3 py-2"
-						type="text" 
-						placeholder="Enter folder name"
-					>
-				</div>
-				<div class="mb-4">
-					<label class="block text-sm font-medium mb-2">Folder Path</label>
-					<input 
-						v-model="newFolderPath"
-						class="w-full bg-gray-700 rounded px-3 py-2"
-						type="text" 
-						placeholder="Enter folder path"
-					>
-				</div>
-				<div class="flex gap-2 justify-end">
-					<button 
-						class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded"
-						@click="showAddFolder = false"
-					>
-						Cancel
-					</button>
-					<button 
-						class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded"
-						@click="addFolder"
-					>
-						Add
-					</button>
-				</div>
-			</div>
-		</div>
-	</Transition>
 </template>
 
 <script setup>
@@ -230,8 +190,6 @@ const player = ref(null);
 const isPlaying = ref(false);
 const selectedFolder = ref(null);
 const showAddFolder = ref(false);
-const newFolderName = ref("");
-const newFolderPath = ref("");
 
 const projectsLoading = ref(false);
 
@@ -328,24 +286,21 @@ async function selectFolder(folder) {
 	await loadProjects();
 }
 
-async function addFolder() {
-	if (!newFolderName.value.trim() || !newFolderPath.value.trim()) return;
+async function addFolder(newFolderName, newFolderPath) {
+	if (!newFolderName.trim() || !newFolderPath.trim()) return;
 
 	try {
 		await $fetch("/api/folders", {
 			method: "POST",
 			body: {
-				name: newFolderName.value.trim(),
-				path: newFolderPath.value.trim()
+				name: newFolderName.trim(),
+				path: newFolderPath.trim()
 			}
 		});
 
 		// Reload folders
 		folders.value = await $fetch("/api/folders");
 
-		// Reset form
-		newFolderName.value = "";
-		newFolderPath.value = "";
 		showAddFolder.value = false;
 	} catch (error) {
 		alert("Error adding folder: " + error.message);
@@ -365,18 +320,5 @@ async function addFolder() {
 
 .slide-up-leave-to {
   transform: translateY(100%);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from {
-  opacity: 0;
-}
-
-.fade-leave-to {
-  opacity: 0;
 }
 </style>
