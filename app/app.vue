@@ -29,25 +29,36 @@
 				<div
 					v-for="f in folders"
 					:key="f.name" 
-					class="bg-gray-800 rounded-lg flex items-center justify-between cursor-pointer hover:bg-gray-700 transition-colors"
+					class="
+						bg-gray-800 
+						hover:bg-gray-700
+						data-selected:bg-gray-700 
+						rounded-lg 
+						flex items-center justify-between 
+						cursor-pointer 
+						transition-colors 
+						overflow-hidden
+						hover:[&>div:nth-child(2)]:translate-x-1
+						data-selected:[&>div:nth-child(2)]:translate-x-1
+					"
 					:class="{ 'bg-gray-700': selectedFolder?.name === f.name }"
 					@click="selectFolder(f)"
+					:data-selected="selectedFolder?.name === f.name ? true : null"
 				>
-					<div class="flex items-center gap-4 p-4">
-						<div class="w-16 h-16 bg-gray-900 rounded flex items-center justify-center overflow-hidden">
+					<div class="flex items-center gap-3 p-2 truncate">
+						<div class="w-16 h-16 bg-gray-900 rounded shrink-0 flex items-center justify-center overflow-hidden">
 							<img 
 								v-if="f.cover" 
 								:src="f.cover" alt="cover"
 								class="w-full h-full object-cover"
 							>
-							<LucideFolder v-else />
+							<LucideFolder v-else class="text-gray-500"/>
 						</div>
-						<div>
-							<h3>{{ f.name }}</h3>
-						</div>
+
+						<h3>{{ f.name }}</h3>
 					</div>
 
-					<div class="p-4 h-full flex items-center justify-center">
+					<div class="p-4 h-full shrink-0 flex items-center justify-center transition-transform">
 						<LucideChevronRight />
 					</div>
 				</div>
@@ -76,13 +87,23 @@
 					>
 				</div>
 
-				<ProjectPanel 
-					v-for="p in filteredProjects" 
-					:key="p.name" 
-					:data-current="p.name == currentProjectName ? true : null"
-					:project="p"
-					@play="play"
-				/>
+				<div
+					class="flex flex-col gap-2 relative"
+				>
+					<div 
+						v-if="projectsLoading" 
+						class="absolute w-full h-full text-center text-gray-500 bg-white/5 rounded-lg pointer-events-none"
+					>
+					</div>
+
+					<ProjectPanel 
+						v-for="p in filteredProjects" 
+						:key="p.name" 
+						:data-current="p.name == currentProjectName ? true : null"
+						:project="p"
+						@play="play"
+					/>
+				</div>
 			</div>
 
 			<div class="p-6">
@@ -212,6 +233,8 @@ const showAddFolder = ref(false);
 const newFolderName = ref("");
 const newFolderPath = ref("");
 
+const projectsLoading = ref(false);
+
 const searchText = ref("");
 const filteredProjects = computed(() => {
 	const text = searchText.value.trim();
@@ -244,6 +267,7 @@ onMounted(async () => {
 
 async function loadProjects() {
 	if (!selectedFolder.value) return;
+	projectsLoading.value = true;
 	const res = await $fetch(`/api/projects?folder=${encodeURIComponent(selectedFolder.value.name)}`);
 	projects.value = res;
 
@@ -252,6 +276,8 @@ async function loadProjects() {
 		const dateB = b.date_prefix ? new Date(b.date_prefix) : new Date(0);
 		return dateB.getTime() - dateA.getTime();
 	});
+
+	projectsLoading.value = false;
 }
 
 async function play(url, project, trackName = "") {
