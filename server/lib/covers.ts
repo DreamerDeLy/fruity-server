@@ -19,6 +19,10 @@ async function scan(currentDir: string, depth: number, relativeToBase: string): 
 
     for (const entry of sorted) {
         if (!entry.isFile()) continue;
+
+		const allowedNames = ["cover", "folder", "front", "artwork"];
+		if (!allowedNames.includes(entry.name.split('.')[0].toLowerCase())) continue;
+
         const ext = path.extname(entry.name).toLowerCase();
         if (!IMAGE_EXTENSIONS.has(ext)) continue;
         return relativeToBase ? path.posix.join(relativeToBase, entry.name) : entry.name;
