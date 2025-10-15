@@ -1,5 +1,8 @@
 <template>
 	<div class="flex flex-col h-screen overflow-hidden">
+
+		<!-- Header -->
+
 		<div class="bg-gray-900 border-b border-gray-700 p-4 flex justify-between items-center">
 			<div class="flex items-center gap-1">
 				<img src="~/assets/FruityServer Logo 1.svg" alt="logo" class="invert w-12 h-12 mb-1">
@@ -8,6 +11,7 @@
 					<small>All your shit in one place</small>
 				</div>
 			</div>
+
 			<div class="flex gap-4 [&>div]:p-1 [&>div]:text-center [&>div>div]:font-bold">
 				<div>
 					<div>{{ projects.length }}</div>
@@ -20,8 +24,14 @@
 			</div>
 		</div>
 
-		<div class="grow grid grid-cols-[minmax(280px,_20%)_minmax(420px,_25%)_1fr] overflow-hidden">
-			<div class="flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4">
+		<!-- Main content -->
+		 
+		<div 
+			class="grow grid grid-cols-[minmax(280px,_20%)_minmax(420px,_25%)_1fr] overflow-hidden"
+		>
+			<div 
+				class="flex flex-col gap-2 overflow-y-auto border-gray-700 border-r p-4"
+			>
 				<h3 class="text-lg font-bold mb-2">
 					Folders
 				</h3>
@@ -81,34 +91,11 @@
 			</div>
 
 			<div class="p-6">
-				<div class="flex gap-5">
-					<div class="w-48 aspect-square rounded-lg overflow-hidden bg-gray-800 flex items-center justify-center">
-						<img
-							v-if="false" 
-							src="" 
-							alt="cover" 
-							class="w-full h-full object-cover"
-						>
-						<div>
-							<font-awesome :icon="faMusic" class="text-3xl text-gray-500" />
-						</div>
-					</div>
-					<div>
-						<h1>{{ currentProjectName == null || currentProjectName.length < 1 ? "Song name" : currentProjectName }}</h1>
-						<p>Artist: {{ currentProject?.flps[0]?.artist ?? "-" }}</p>
-						<p>
-							Dates: 
-							<span v-if="currentProject?.flps?.length > 1">
-								{{ currentProject.flps[0].ctime.substring(0, 10) }} - {{ currentProject.flps[currentProject.flps.length - 1].ctime.substring(0, 10) }}
-							</span>
-							<span v-else>
-								{{ currentProject?.flps?.[0]?.ctime?.substring(0, 10) ?? "-" }}
-							</span>
-						</p>
-					</div>
-				</div>
+				<ProjectInfo :project="currentProject" v-if="currentProject" />
 			</div>
 		</div>
+
+		<!-- Player -->
 
 		<Transition name="slide-up">
 			<footer v-if="currentUrl"
@@ -146,25 +133,27 @@
 </template>
 
 <script setup>
-import { faPause, faPlay, faStop, faMusic, faFolder } from '@fortawesome/free-solid-svg-icons'
-import WaveformPlayer from './components/WaveformPlayer.vue'
-import ProjectPanel from './components/ProjectPanel.vue';
-import { LucideFolder, LucideChevronRight, LucidePlus } from 'lucide-vue-next';
+import { faPause, faPlay, faStop, faMusic } from '@fortawesome/free-solid-svg-icons'
+import { LucidePlus } from 'lucide-vue-next';
 
 const folders = ref([]);
 const projects = ref([]);
+
 const currentUrl = ref("");
 const currentProject = ref(null);
 const currentProjectName = ref("");
 const currentTrack = ref("");
+
 const player = ref(null);
 const isPlaying = ref(false);
+
 const selectedFolder = ref(null);
 const showAddFolder = ref(false);
 
 const projectsLoading = ref(false);
 
 const searchText = ref("");
+
 const filteredProjects = computed(() => {
 	const text = searchText.value.trim();
 	
