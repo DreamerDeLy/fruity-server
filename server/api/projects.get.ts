@@ -46,7 +46,10 @@ export default defineEventHandler(async (event) => {
 		const dateFromPrefix = getDateFromPrefix(e.name);
 
 		// Skip if not FS project
-		if (!files.some(isFlp) || e.name.toLowerCase() == "backup") continue;
+		if (!files.some(isFlp)) continue;
+
+		// Skip if data folder
+		if (["data", "backup"].includes(e.name.toLowerCase())) continue;
 
 		const flps = files
 			.filter(isFlp)
