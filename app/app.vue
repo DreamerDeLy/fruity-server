@@ -42,6 +42,7 @@
 					:folder="f"
 					:selected="selectedFolder?.name == f.name"
 					@click="selectFolder(f)"
+					class="shrink-0"
 				/>
 
 				<div class="flex items-center justify-center mt-4">
@@ -133,7 +134,7 @@
 </template>
 
 <script setup>
-import { faPause, faPlay, faStop, faMusic } from '@fortawesome/free-solid-svg-icons'
+import { faPause, faPlay, faStop } from '@fortawesome/free-solid-svg-icons'
 import { LucidePlus } from 'lucide-vue-next';
 
 const folders = ref([]);
@@ -159,13 +160,26 @@ const filteredProjects = computed(() => {
 	
 	if (!text) return projects.value;
 
-
 	if (text.startsWith("folder:")) {
 		const folderToSearch = text.slice(7).trim().toLowerCase();
 		return projects.value.filter(p => {
 			const parentFolder = p.parentPath.toLowerCase().split("\\").at(-1) || "";
 			return parentFolder.includes(folderToSearch);
 		});
+	}
+
+	if (text.startsWith("with:")) {
+		const withText = text.slice(5).trim().toLowerCase();
+		if (withText === "mp3") {
+			return projects.value.filter(p => p.mp3s.length > 0);
+		}
+		if (withText === "legacy") {
+			return projects.value.filter(p => p.legacy);
+		}
+		if (withText === "nolegacy" || withText === "no-legacy" || withText === "no legacy") {
+			return projects.value.filter(p => !p.legacy);
+		}
+		return projects.value;
 	}
 
 	return projects.value.filter(p => 

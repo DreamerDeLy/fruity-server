@@ -13,4 +13,16 @@ export default defineNuxtConfig({
 	},
 
 	modules: ['nuxt-lucide-icons', '@vesp/nuxt-fontawesome'],
+
+	app: {
+		head: {
+			title: 'FruityServer', // default fallback title
+			htmlAttrs: {
+				lang: 'en',
+			},
+			link: [
+				{ rel: 'icon', type: 'image/svg', href: '/favicon.ico' },
+			],
+		},
+	},
 })
