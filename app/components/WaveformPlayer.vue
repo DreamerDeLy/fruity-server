@@ -40,6 +40,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { useStorage } from '@vueuse/core';
 
 type Peak = { min: number; max: number };
 type WaveformData = { peaks: Peak[]; duration: number };
@@ -62,7 +63,7 @@ const emit = defineEmits<{
 
 const waveCanvas = ref<HTMLCanvasElement | null>(null);
 const progressRef = ref<HTMLElement | null>(null);
-const volume = ref(1);
+const volume = useStorage<number>('fruity:volume', 1);;
 const isPlaying = ref(false);
 const currentTime = ref(0);
 const duration = ref(0);
