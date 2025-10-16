@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	// Add new folder
-	folders.push({ name, path: folderPath, cover: cover || null });
+	folders.push({ name, path: folderPath });
 
 	// Save back to file
 	await fs.writeFile(FOLDERS_CONFIG, JSON.stringify(folders, null, 2));

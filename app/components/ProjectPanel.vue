@@ -24,6 +24,12 @@
 					>
 						{{ "v" + project.flps[0].version }}
 					</div>
+					<div 
+						v-if="project.legacy"
+						class="border border-red-700 bg-red-900 rounded px-1 py-0.5 text-sm"
+					>
+						Legacy
+					</div>
 				</div>
 			</div>
 			<button 

@@ -41,8 +41,11 @@ export default defineEventHandler(async (event) => {
 	for (const e of entries.filter(e => e.isDirectory())) {
 		const dirPath = path.join(e.parentPath, e.name);
 		const dirRelativePath = path.relative(folder.path, dirPath);
+
+		// Read files in the directory
 		const files = await fs.readdir(dirPath);
 
+		// Get date from prefix if available
 		const dateFromPrefix = getDateFromPrefix(e.name);
 
 		// Skip if not FS project
@@ -100,49 +103,71 @@ export default defineEventHandler(async (event) => {
 			flps: awaitedFlps,
 			last: awaitedMp3s[awaitedMp3s.length - 1],
 			date_prefix: dateFromPrefix,
-			cover
+			cover,
+			legacy: false,
 		});
 	}
 
-	for (const e of entries.filter(e => e.isFile() && e.parentPath == folder.path && isFlp(e.name))) {
-		if (entries.some(en => normalizeBase(en.name) === normalizeBase(e.name) && isFlp(en.name))) {
-			const mp3s = entries
-				.filter(en => en.isFile() && en.parentPath == folder.path && isMp3(en.name) && normalizeBase(en.name) === normalizeBase(e.name))
-				.map(async f => {
-					const fullPath = path.join(f.parentPath, f.name);
-					const stats = await fs.stat(fullPath);
-					return { 
-						name: f.name, 
-						url: `/api/media/${encodeURIComponent(folder.name)}/${encodeURIComponent(f.name)}`,
-						mtime: stats.mtime,
-						ctime: stats.ctime,
-					};
-				});
+	// Legacy: single FLP in root
+	const legacyFilesMap: Record<string, typeof entries> = {};
+	entries
+		.filter(e => e.isFile() && e.parentPath == folder.path)
+		.forEach(e => {
+			const key = normalizeBase(e.name);
+			if (!legacyFilesMap[key]) legacyFilesMap[key] = [];
+			legacyFilesMap[key].push(e);
+		});
 
-			const flpPath = path.join(e.parentPath, e.name);
-			const stats = await fs.stat(flpPath);
-			const parsedData = await parseFlpMetadata(flpPath);
+	for (const key of Object.keys(legacyFilesMap)) {
+		const projectEntries = legacyFilesMap[key];
 
-			const awaitedMp3s = await Promise.all(mp3s);
+		// Skip if not FS project
+		if (!projectEntries.some(e => isFlp(e.name))) continue;
 
-			const dateFromPrefix = getDateFromPrefix(e.name);
+		const mp3s = projectEntries
+			.filter(e => isMp3(e.name))
+			.map(async f => {
+				const fullPath = path.join(f.parentPath, f.name);
+				const stats = await fs.stat(fullPath);
+				return { 
+					name: f.name, 
+					url: `/api/media/${encodeURIComponent(folder.name)}/${encodeURIComponent(f.name)}`,
+					mtime: stats.mtime,
+					ctime: stats.ctime,
+				};
+			});
+		
+		const flps = projectEntries
+			.filter(e => isFlp(e.name))
+			.map(async f => {
+				const fullPath = path.join(f.parentPath, f.name);
+				const stats = await fs.stat(fullPath);
 
-			projects.push({ 
-				name: e.name, 
-				parentPath: e.parentPath,
-				mp3s: awaitedMp3s,
-				flps: [{ 
-					name: e.name,
+				const parsedData = await parseFlpMetadata(fullPath);
+				return { 
+					name: f.name, 
 					mtime: stats.mtime,
 					ctime: stats.ctime,
 					...parsedData,
-					normalized: normalizeBase(e.name),
-				}],
-				last: awaitedMp3s[awaitedMp3s.length - 1],
-				date_prefix: dateFromPrefix,
-				cover: null,
+					normalized: normalizeBase(f.name),
+				};
 			});
-		}
+
+		const awaitedMp3s = await Promise.all(mp3s);
+		const awaitedFlps = await Promise.all(flps);
+
+		const dateFromPrefix = getDateFromPrefix(projectEntries[0].name);
+
+		projects.push({ 
+			name: key, 
+			parentPath: folder.path,
+			mp3s: awaitedMp3s,
+			flps: awaitedFlps,
+			last: awaitedMp3s[awaitedMp3s.length - 1],
+			date_prefix: dateFromPrefix,
+			cover: null,
+			legacy: true,
+		});
 	}
 
 	return projects;
