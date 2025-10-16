@@ -104,5 +104,46 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
+	for (const e of entries.filter(e => e.isFile() && e.parentPath == folder.path && isFlp(e.name))) {
+		if (entries.some(en => normalizeBase(en.name) === normalizeBase(e.name) && isFlp(en.name))) {
+			const mp3s = entries
+				.filter(en => en.isFile() && en.parentPath == folder.path && isMp3(en.name) && normalizeBase(en.name) === normalizeBase(e.name))
+				.map(async f => {
+					const fullPath = path.join(f.parentPath, f.name);
+					const stats = await fs.stat(fullPath);
+					return { 
+						name: f.name, 
+						url: `/api/media/${encodeURIComponent(folder.name)}/${encodeURIComponent(f.name)}`,
+						mtime: stats.mtime,
+						ctime: stats.ctime,
+					};
+				});
+
+			const flpPath = path.join(e.parentPath, e.name);
+			const stats = await fs.stat(flpPath);
+			const parsedData = await parseFlpMetadata(flpPath);
+
+			const awaitedMp3s = await Promise.all(mp3s);
+
+			const dateFromPrefix = getDateFromPrefix(e.name);
+
+			projects.push({ 
+				name: e.name, 
+				parentPath: e.parentPath,
+				mp3s: awaitedMp3s,
+				flps: [{ 
+					name: e.name,
+					mtime: stats.mtime,
+					ctime: stats.ctime,
+					...parsedData,
+					normalized: normalizeBase(e.name),
+				}],
+				last: awaitedMp3s[awaitedMp3s.length - 1],
+				date_prefix: dateFromPrefix,
+				cover: null,
+			});
+		}
+	}
+
 	return projects;
 });
