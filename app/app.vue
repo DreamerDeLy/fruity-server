@@ -92,7 +92,7 @@
 			</div>
 
 			<div class="p-6">
-				<ProjectInfo :project="currentProject" v-if="currentProject" />
+				<ProjectInfo :project="currentProject" v-if="currentProject" @play="play" />
 			</div>
 		</div>
 
