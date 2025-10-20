@@ -19,34 +19,28 @@
 
 		<WaveformPlayer 
 			:key="playKey" 
-			ref="waveformPlayer" 
 			class="flex-1 min-w-[260px]" 
 			:src="player.state.currentUrl"
 			:title="player.state.currentTrack" 
 			:subtitle="player.state.currentProjectName" 
 			autoplay
-			@play="player.setIsPlaying(true)" 
-			@pause="player.setIsPlaying(false)" 
-			@ended="player.setIsPlaying(false)" 
 		/>
 	</footer>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { faPause, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import { usePlayer } from '~/composables/usePlayer';
 
 const player = usePlayer();
-const waveformPlayer = ref(null);
 const playKey = computed(() => `${player.state.currentUrl}#${player.state.playRequestId}`);
 
 function togglePlay() {
-	waveformPlayer.value?.toggle();
+	player.toggle();
 }
 
 function stopPlayback() {
-	waveformPlayer.value?.stop();
 	player.stop();
 }
 </script>
