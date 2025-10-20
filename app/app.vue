@@ -84,69 +84,33 @@
 					<ProjectPanel 
 						v-for="p in filteredProjects" 
 						:key="p.name" 
-						:data-current="p.name == currentProjectName ? true : null"
+						:data-current="p.name === player.state.currentProjectName ? true : null"
 						:project="p"
-						@play="play"
 					/>
 				</div>
 			</div>
 
 			<div class="p-6">
-				<ProjectInfo :project="currentProject" v-if="currentProject" @play="play" />
+				<ProjectInfo :project="currentProject" v-if="currentProject" />
 			</div>
 		</div>
 
 		<!-- Player -->
 
 		<Transition name="slide-up">
-			<footer v-if="currentUrl"
-				class="bg-gray-900 border-t border-gray-700 flex flex-wrap items-center gap-4 p-3"
-			>
-	
-				<div class="flex gap-2">
-					<button
-						class="bg-purple-600 hover:bg-purple-500 transition-colors rounded-full p-3 text-white w-12 h-12 flex items-center justify-center"
-						@click="togglePlay"
-					>
-						<font-awesome :icon="isPlaying ? faPause : faPlay" />
-					</button>
-					<button
-						class="bg-gray-800 hover:bg-gray-700 transition-colors rounded-full p-3 text-white w-12 h-12 flex items-center justify-center"
-						@click="stopPlayback"
-					>
-						<font-awesome :icon="faStop" />
-					</button>
-				</div>
-				<WaveformPlayer
-					ref="player"
-					class="flex-1 min-w-[260px]"
-					:src="currentUrl"
-					:title="currentTrack"
-					:subtitle="currentProjectName"
-					autoplay
-					@play="isPlaying = true"
-					@pause="isPlaying = false"
-					@ended="isPlaying = false"
-				/>
-			</footer>
+					<PlayerBar v-if="player.state.currentUrl" />
 		</Transition>
 	</div>
 </template>
 
 <script setup>
-import { faPause, faPlay, faStop } from '@fortawesome/free-solid-svg-icons'
 import { LucidePlus } from 'lucide-vue-next';
+import { usePlayer } from '~/composables/usePlayer';
+
+const player = usePlayer();
 
 const folders = ref([]);
 const projects = ref([]);
-
-const currentUrl = ref("");
-const currentProject = ref(null);
-const currentProjectName = ref("");
-const currentTrack = ref("");
-
-const player = ref(null);
-const isPlaying = ref(false);
 
 const selectedFolder = ref(null);
 const showAddFolder = ref(false);
@@ -154,6 +118,10 @@ const showAddFolder = ref(false);
 const projectsLoading = ref(false);
 
 const searchText = ref("");
+
+const currentProject = computed(() =>
+	projects.value.find(p => p.name === player.state.currentProjectName) || null
+);
 
 const filteredProjects = computed(() => {
 	const text = searchText.value.trim();
@@ -210,49 +178,6 @@ async function loadProjects() {
 	});
 
 	projectsLoading.value = false;
-}
-
-async function play(url, project, trackName = "") {
-	console.log("Play", { url, project, trackName });
-
-	if (!url) return;
-	const assignSource = () => {
-		currentUrl.value = url;
-		currentProjectName.value = project;
-		currentTrack.value = trackName || deriveTrackName(url);
-
-		currentProject.value = projects.value.find(p => p.name === project) || null;
-	};
-
-	if (currentUrl.value === url) {
-		player.value?.stop();
-		currentUrl.value = "";
-		await nextTick();
-		assignSource();
-	} else {
-		assignSource();
-	}
-	isPlaying.value = true;
-}
-
-function togglePlay() {
-	player.value?.toggle();
-}
-
-function stopPlayback() {
-	player.value?.stop();
-	currentUrl.value = "";
-	currentProjectName.value = "";
-	currentTrack.value = "";
-	isPlaying.value = false;
-}
-
-function deriveTrackName(url = "") {
-	try {
-		return decodeURIComponent(url).split("/").pop() || "";
-	} catch (err) {
-		return url;
-	}
 }
 
 async function selectFolder(folder) {

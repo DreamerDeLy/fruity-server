@@ -83,7 +83,7 @@
 							</span>
 						</div>
 					</div>
-					<button class="bg-purple-600 w-8 h-8 rounded-full play-button" @click="emit('play', mp3.url, project.name, mp3.name)">
+					<button class="bg-purple-600 w-8 h-8 rounded-full play-button" @click="play(mp3)">
 						<font-awesome :icon="faPlay" />
 					</button>
 				</div>
@@ -107,13 +107,20 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { faPlay } from "@fortawesome/free-solid-svg-icons"
+import { usePlayer } from '~/composables/usePlayer';
 
 const props = defineProps({
 	project: Object,
 })
 
-const emit = defineEmits(['play']);
+const player = usePlayer();
+
+function play(mp3) {
+	if (!mp3?.url) return;
+	player.play({ url: mp3.url, projectName: props.project?.name || '', trackName: mp3.name });
+}
 
 function formatDateShort(dateStr) {
 	return (new Date(dateStr)).toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });

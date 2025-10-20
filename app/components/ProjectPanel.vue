@@ -34,7 +34,7 @@
 			</div>
 			<button 
 				class="bg-purple-600 w-8 h-8 rounded-full play-button" 
-				@click="emit('play', project.last?.url, project.name, project.last?.name)"
+				@click="play(project.last?.url, project.name, project.last?.name)"
 				v-if="project.last"
 			>
 				<font-awesome :icon="faPlay" />
@@ -43,7 +43,7 @@
 
 		<ul>
 			<li 
-				v-for="m in project.mp3s" 
+				v-for="m in mp3s" 
 				:key="m.name" 
 				class="flex justify-between"
 			>
@@ -60,7 +60,7 @@
 				</span>
 				<button 
 					class="w-8 h-8 rounded-full play-button" 
-					@click="emit('play', m.url, project.name, m.name)"
+					@click="play(m.url, project.name, m.name)"
 				>
 					<font-awesome :icon="faPlay" />
 				</button>
@@ -70,7 +70,9 @@
 </template>
 
 <script setup>
-import { faPause, faPlay, faStop } from '@fortawesome/free-solid-svg-icons'
+import { computed } from 'vue';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { usePlayer } from '~/composables/usePlayer';
 
 const props = defineProps({
 	project: {
@@ -79,7 +81,30 @@ const props = defineProps({
 	}
 });
 
-const emit = defineEmits(['play']);
+const player = usePlayer();
+
+function play(url, projectName, trackName) {
+	if (!url) return;
+	player.play({ url, projectName: projectName || '', trackName });
+}
+
+const mp3s = computed(() => {
+	if (props.project.mp3s == null) {
+		return [];
+	}
+
+	// return props.project.mp3s.sort((a, b) => {
+	// 	const hasNumberA = /_(\d+)/.test(a.name);
+	// 	const hasNumberB = /_(\d+)/.test(b.name);
+
+	// 	if (!hasNumberA && hasNumberB) return -1;
+	// 	if (hasNumberA && !hasNumberB) return 1;
+
+	// 	return a.name.localeCompare(b.name, undefined, { numeric: true });
+	// });
+
+	return props.project.mp3s;
+});
 </script>
 
 <style lang="scss" scoped>
